@@ -1,0 +1,12 @@
+{
+  "state_dir": "/var/lib/nier-pacman-updater",
+  "repo_dir": "/srv/nier-pacman-repo",
+  "repo_name": "nier",
+  "recipe_dir": "/usr/share/nier/pacman-updater/recipes",
+  "image": "localhost/nier-pacman-builder:latest",
+  "signing_key": "repo@nier.local",
+  "vendor_key": "/etc/nier-pacman-updater/devolutions.asc",
+  "vendor_fingerprint": "880E66407780AD737F46CBADFE7407ECB26FD2FE",
+  "packages": ["onedrive-abraunegg", "onedrive-quickshell", "remote-desktop-manager", "teams-for-linux", "neovim-nightly", "powershell"],
+  "recipe_revision": 7
+}

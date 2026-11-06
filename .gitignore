@@ -1,0 +1,5 @@
+/nier-pacman-updater
+/build/
+*.pkg.tar.*
+*.rpm
+*.key

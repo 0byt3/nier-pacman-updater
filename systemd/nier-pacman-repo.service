@@ -1,0 +1,29 @@
+[Unit]
+Description=Serve the Nier pacman repository with rootless Podman Nginx
+Wants=network-online.target
+After=network-online.target
+RequiresMountsFor=/srv/nier-pacman-repo/images
+
+[Service]
+User=nier-repo-web
+Group=nier-repo-web
+Environment=HOME=/var/lib/nier-pacman-repo
+Environment=XDG_RUNTIME_DIR=/run/nier-pacman-repo
+WorkingDirectory=/var/lib/nier-pacman-repo
+RuntimeDirectory=nier-pacman-repo
+RuntimeDirectoryMode=0700
+RuntimeDirectoryPreserve=yes
+ExecStart=/usr/bin/podman --cgroup-manager=cgroupfs run --rm --replace --pull=never --name nier-pacman-repo --cgroups=disabled --network=pasta --publish 8080:8080 --user 101:101 --cap-drop=all --security-opt=no-new-privileges --read-only --tmpfs /tmp:rw,noexec,nosuid,size=64m --volume /srv/nier-pacman-repo:/repo:ro --volume /etc/nier-pacman-updater/nginx.conf:/etc/nginx/nginx.conf:ro --entrypoint nginx docker.io/library/nginx:stable-alpine -g "daemon off;"
+ExecStop=/usr/bin/podman --cgroup-manager=cgroupfs stop --ignore --time 10 nier-pacman-repo
+ExecStopPost=/usr/bin/podman --cgroup-manager=cgroupfs rm --force --ignore nier-pacman-repo
+Restart=on-failure
+RestartSec=5
+TimeoutStopSec=30
+UMask=0022
+ProtectSystem=full
+ProtectHome=yes
+MemoryMax=256M
+TasksMax=256
+
+[Install]
+WantedBy=multi-user.target
