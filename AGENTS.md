@@ -57,3 +57,19 @@ VM 107, Proxmox `root@10.0.2.235`, SSH `localadmin@10.0.2.36`, parent project's
 `/var/lib/nier-pacman-updater`, config under `/etc/nier-pacman-updater`, repository
 under `/srv/nier-pacman-repo`, HTTP port 8080. See README.md for operation and
 known limitations and the parent AGENTS.md for VM details.
+
+## Monitor arrangement deployment (2026-11-07)
+
+- Stable `0byt3/nier-monitor-arrangement` v0.1.0 is published from `1112a5e`.
+  VM 107 tracks it over HTTPS at recipe revision 11 with a Lua-enabled builder.
+- Signed `nier-monitor-arrangement 0.1.0-11` is published in generation
+  `release-1180217378`; the hourly timer and HTTP repository remain active.
+  Strict signed-repository client installation and 38-file integrity checks
+  passed, including the Apps-menu desktop entry and selected SVG icon.
+- Backup: `/var/backups/nier-pacman-updater/monitor-arrangement-20261107T203127Z/`.
+  Candidate source/image and client log:
+  `/var/lib/nier-pacman-updater/deploy/monitor-v0.1.0-1112a5e/`.
+- Existing deployed package recipes were preserved. Do not deploy the new
+  OneDrive activation recipe/sidecar against upstream widget v1.6.0: that
+  release lacks its new helper files. Publish a compatible widget release first.
+- No workstation or VM106 installation/configuration was changed by this deployment.

@@ -470,10 +470,44 @@ builds. Then deploy the updated executable/recipes, rebuild the builder image
 update its recipe revision. Existing configuration is preserved on reinstall.
 A missing stable release fails discovery without changing the published pacman
 repository, so do not enable this package on VM 107 before that first release.
-This change has not yet been deployed or published.
+The monitor-arrangement deployment is recorded below.
 
 The monitor-arrangement recipe now uses its source-owned
 `packaging/install-files.sh` manifest. Revision 11 installs the runtime at
 `/usr/local/nier/share/hypr/monitor-arrangement-runtime.lua`; generated user hooks
 resolve it through `NIER_PATH`. Publish a release containing the shared manifest
 before deploying this recipe revision.
+
+### Monitor arrangement v0.1.0 deployment (2026-11-07)
+
+Published the initial stable [v0.1.0 source release](https://github.com/0byt3/nier-monitor-arrangement/releases/tag/v0.1.0)
+from commit `1112a5e`. VM 107 now runs the updated updater with
+`nier-monitor-arrangement` enabled, recipe revision 11, and the Lua-enabled
+builder image. The existing package selection, repository signing key, web
+service and hourly timer were preserved. The initial targeted run built and
+signed `nier-monitor-arrangement 0.1.0-11` from the public GitHub HTTPS tag archive
+and atomically published generation `release-1180217378`. Existing packages were
+retained in that generation.
+
+The package is available at
+`http://10.0.2.36:8080/nier-monitor-arrangement-0.1.0-11-x86_64.pkg.tar.zst`.
+Its Apps-menu entry uses the selected desktop-and-laptop SVG icon. Installation
+from the HTTP repository passed in a disposable Arch client with
+`SigLevel = Required DatabaseRequired`, followed by dependency resolution,
+`pacman -Qkk` (38 files, none altered), runtime Lua syntax, desktop-entry
+validation, icon equality and launcher checks. Updater and editor Go race tests
+and vet passed in the candidate image. Repeat release discovery reported the
+package current. No workstation or VM 106 configuration was changed.
+
+Deployment backup:
+`/var/backups/nier-pacman-updater/monitor-arrangement-20261107T203127Z/`.
+The source/candidate and client validation log are retained under
+`/var/lib/nier-pacman-updater/deploy/monitor-v0.1.0-1112a5e/`.
+The previous builder image ID and repository generation are recorded in the
+backup. Private signing material was not copied into source or build containers.
+
+The deployed recipes for existing packages were deliberately preserved. In
+particular, the source-tree OneDrive activation recipe requires helper files not
+present in the published OneDrive widget v1.6.0 source release. Deploy that
+recipe and its install script only after publishing a compatible OneDrive widget
+release; it was not enabled as part of this monitor-editor deployment.
