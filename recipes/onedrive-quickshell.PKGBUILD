@@ -5,9 +5,10 @@ pkgdesc='OneDrive account setup and status widget for the Omarchy Quickshell bar
 arch=('x86_64')
 url='https://github.com/0byt3/onedrive-quickshell'
 license=('GPL-3.0-only' 'MIT')
-depends=('onedrive-abraunegg>=2.5.12' 'omarchy>=4.0.6' 'quickshell' 'systemd' 'xdg-utils')
+depends=('onedrive-abraunegg>=2.5.12' 'omarchy>=4.0.6' 'quickshell' 'systemd' 'xdg-utils' 'jq' 'util-linux')
 makedepends=('go')
 options=('!debug')
+install=onedrive-quickshell.install
 source=('source.tar.gz')
 sha256sums=('{{.SHA256}}')
 
@@ -27,6 +28,9 @@ check() {
 
 package() {
   cd "$srcdir"/onedrive-quickshell-*
+  install -Dm755 nier-onedrive-enable "$pkgdir/usr/share/nier/bin/nier-onedrive-enable"
+  install -d "$pkgdir/usr/bin"
+  ln -s /usr/share/nier/bin/nier-onedrive-enable "$pkgdir/usr/bin/nier-onedrive-enable"
   for program in nier-onedrive-monitor nier-onedrive-setup; do
     install -Dm755 "$program" "$pkgdir/usr/share/nier/bin/$program"
     install -d "$pkgdir/usr/bin"

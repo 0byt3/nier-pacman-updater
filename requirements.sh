@@ -30,7 +30,7 @@ trap 'rm -rf "$build_dir"' EXIT
 GOCACHE="$build_dir/cache" go build -trimpath -o "$build_dir/nier-pacman-updater" .
 install -m 0755 "$build_dir/nier-pacman-updater" /usr/share/nier/bin/nier-pacman-updater
 ln -sfn /usr/share/nier/bin/nier-pacman-updater /usr/local/bin/nier-pacman-updater
-install -m 0644 recipes/*.PKGBUILD /usr/share/nier/pacman-updater/recipes/
+install -m 0644 recipes/*.PKGBUILD recipes/*.install /usr/share/nier/pacman-updater/recipes/
 install -m 0644 Containerfile /usr/share/nier/pacman-updater/Containerfile
 install -Dm 0644 tools/publish-windows-image.sh /usr/share/nier/pacman-updater/tools/publish-windows-image.sh
 install -m 0644 nginx/nginx.conf /etc/nier-pacman-updater/nginx.conf

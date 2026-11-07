@@ -19,6 +19,9 @@ installation and PKGBUILD recipes. Follow the parent project's Go preference.
   GitHub asset SHA-256 digests and matching Arch Neovim dependencies.
 - Repackage stable `PowerShell/PowerShell` Linux x64 tarballs, requiring
   GitHub asset SHA-256 digests and exact repository release asset URLs.
+- Build `nier-monitor-arrangement` from numeric stable releases of
+  `0byt3/nier-monitor-arrangement`, using GitHub HTTPS API/archive URLs. The
+  standalone editor requires Lua in the builder for profile-decoder tests.
 - Do not modify Omarchy VM 106 for updater tests.
 
 ## Implementation

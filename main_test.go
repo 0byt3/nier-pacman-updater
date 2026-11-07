@@ -343,3 +343,59 @@ func TestPowerShellStableArchive(t *testing.T) {
 		}
 	}
 }
+
+func TestMonitorArrangementStableReleaseAndHTTPS(t *testing.T) {
+	for _, test := range []struct {
+		tag                     string
+		draft, prerelease, fail bool
+	}{
+		{"v0.1.0", false, false, false}, {"0.2.1", false, false, false},
+		{"v0.2.0-rc1", false, true, true}, {"v0.2.0", true, false, true},
+		{"v0.3.0", false, true, true}, {"main", false, false, true},
+		{"v0.1.0/../../oops", false, false, true},
+	} {
+		t.Run(test.tag, func(t *testing.T) {
+			body, _ := json.Marshal(map[string]any{"tag_name": test.tag, "draft": test.draft, "prerelease": test.prerelease})
+			u, server := fixtureUpdater(t, string(body))
+			server.Config.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path != "/repos/0byt3/nier-monitor-arrangement/releases/latest" {
+					t.Errorf("wrong remote: %s", r.URL.Path)
+				}
+				w.Write(body)
+			})
+			release, err := u.discover(context.Background(), "nier-monitor-arrangement")
+			if (err != nil) != test.fail {
+				t.Fatalf("%+v: %v", release, err)
+			}
+			if !test.fail {
+				expected := "https://github.com/0byt3/nier-monitor-arrangement/archive/refs/tags/" + test.tag + ".tar.gz"
+				if release.URL != expected || release.Version != strings.TrimPrefix(test.tag, "v") {
+					t.Fatal(release)
+				}
+			}
+		})
+	}
+}
+
+func TestMonitorArrangementStandaloneConfig(t *testing.T) {
+	data, err := os.ReadFile("config.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	var config Config
+	if err = json.Unmarshal(data, &config); err != nil {
+		t.Fatal(err)
+	}
+	path := filepath.Join(t.TempDir(), "config.json")
+	for _, packages := range [][]string{{"nier-monitor-arrangement"}, {"nier-monitor-arrangement", "nier-monitor-arrangement"}} {
+		config.Packages = packages
+		data, _ = json.Marshal(config)
+		if err = os.WriteFile(path, data, 0600); err != nil {
+			t.Fatal(err)
+		}
+		_, err := loadConfig(path)
+		if (err == nil) != (len(packages) == 1) {
+			t.Fatalf("packages=%v err=%v", packages, err)
+		}
+	}
+}

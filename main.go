@@ -144,10 +144,12 @@ func compare(a, b string) int {
 func (u *Updater) discover(ctx context.Context, name string) (Release, error) {
 	r := Release{Name: name, Pkgrel: fmt.Sprint(u.Config.RecipeRevision)}
 	switch name {
-	case "onedrive-abraunegg", "onedrive-quickshell", "teams-for-linux", "powershell":
+	case "onedrive-abraunegg", "onedrive-quickshell", "nier-monitor-arrangement", "teams-for-linux", "powershell":
 		repository := "abraunegg/onedrive"
 		if name == "onedrive-quickshell" {
 			repository = "0byt3/onedrive-quickshell"
+		} else if name == "nier-monitor-arrangement" {
+			repository = "0byt3/nier-monitor-arrangement"
 		} else if name == "teams-for-linux" {
 			repository = "IsmaelMartinez/teams-for-linux"
 		} else if name == "powershell" {
@@ -364,6 +366,17 @@ func (u *Updater) build(ctx context.Context, r Release) (Release, string, error)
 		if err = u.verifyVendor(ctx, work, artifact); err != nil {
 			return r, "", err
 		}
+	}
+
+	// Pacman install scripts must exist beside PKGBUILD before makepkg starts.
+	installName := r.Name + ".install"
+	installScript, err := os.ReadFile(filepath.Join(u.Config.RecipeDir, installName))
+	if err == nil {
+		if err = os.WriteFile(filepath.Join(work, installName), installScript, 0644); err != nil {
+			return r, "", err
+		}
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return r, "", err
 	}
 
 	tpl, err := template.ParseFiles(filepath.Join(u.Config.RecipeDir, r.Name+".PKGBUILD"))
@@ -612,7 +625,7 @@ func loadConfig(path string) (Config, error) {
 	}
 	seen := map[string]bool{}
 	for _, p := range c.Packages {
-		if (p != "onedrive-abraunegg" && p != "onedrive-quickshell" && p != "remote-desktop-manager" && p != "teams-for-linux" && p != "neovim-nightly" && p != "powershell") || seen[p] {
+		if (p != "onedrive-abraunegg" && p != "onedrive-quickshell" && p != "nier-monitor-arrangement" && p != "remote-desktop-manager" && p != "teams-for-linux" && p != "neovim-nightly" && p != "powershell") || seen[p] {
 			return c, fmt.Errorf("unsupported or duplicate package %q", p)
 		}
 		seen[p] = true

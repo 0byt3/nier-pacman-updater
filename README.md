@@ -18,6 +18,16 @@ VM 107 is the deployment/test server.
   The widget uses Omarchy's shell components and terminal launcher; Nier Desktop
   is not required. Installation does not enable account services or edit bar
   preferences; the user runs `nier-onedrive-setup` to configure accounts/widgets.
+- **`nier-monitor-arrangement`**: latest numeric stable release of
+  [0byt3/nier-monitor-arrangement](https://github.com/0byt3/nier-monitor-arrangement).
+  Queries `https://api.github.com/repos/0byt3/nier-monitor-arrangement/releases/latest`
+  and builds the matching GitHub HTTPS tag archive offline. Drafts, prereleases
+  and nonnumeric tags are rejected. The standalone Quickshell editor includes
+  its desktop-and-laptop menu icon and optional per-user Hyprland loader.
+  Runtime dependencies include Quickshell, Lua and Lua-enabled Hyprland; Lua is
+  also installed in the builder to run profile-decoder tests. No SSH key is used
+  to fetch releases or source. Installing it does not enable the user hook;
+  run `nier-monitor-arrangement enable` as the desktop user.
 - **`remote-desktop-manager`**: latest completed numeric stable x86_64 RPM in
   [Devolutions' official Cloudsmith repository](https://cloudsmith.io/~devolutions/repos/rdm/).
   The updater queries Cloudsmith's API, verifies the SHA-256 checksum and embedded
@@ -101,7 +111,7 @@ repository name, signing key, and pinned vendor key. Increment `recipe_revision`
 after recipe changes to rebuild an already published upstream release.
 
 The default configuration includes `onedrive-quickshell`, `teams-for-linux`,
-`neovim-nightly`, `powershell`, and recipe revision 7. Reinstallation preserves an existing package selection, so
+`nier-monitor-arrangement`, `neovim-nightly`, `powershell`, and recipe revision 11. Reinstallation preserves an existing package selection, so
 add newly adopted packages to the deployed `packages` list and update
 `recipe_revision` explicitly before running them. Rebuild the builder image with
 `requirements.sh` after build dependency changes. GitHub source and asset URLs
@@ -113,7 +123,7 @@ on sibling checkouts or AUR recipes.
 - `/srv/nier-pacman-repo/current`: atomically switched live-generation symlink.
 - `/usr/share/nier/bin/nier-pacman-updater`: installed executable, with a
   compatibility link at `/usr/local/bin/nier-pacman-updater`.
-- `/usr/share/nier/pacman-updater/recipes/`: installed recipe templates;
+- `/usr/share/nier/pacman-updater/recipes/`: installed recipe templates and pacman install scripts;
   its parent directory also holds `Containerfile`.
 - `/etc/nier-pacman-updater/nginx.conf`: Nginx configuration.
 - `/var/lib/nier-pacman-repo/`: separate web account's rootless image storage.
@@ -430,3 +440,40 @@ VM106 was subsequently switched to the normal production URL on 2026-11-06.
 All nine packages, live widgets, GUI startup, broad fixture suites, repeat runs
 and reboot checks passed. Windows VM installation was excluded; no accounts were
 authenticated. See `../nier-deploy/README.md` for the validation scope and evidence.
+
+### Automatic widget activation (source change)
+
+Recipe revision 8 packages the OneDrive activation command and pacman install
+script. The updater copies a recipe's optional `<package>.install` companion
+beside its rendered PKGBUILD before starting makepkg. Installing or upgrading
+`onedrive-quickshell` registers its user plugin and adds the bar widget for the
+installing desktop user, preserving account settings and backing up changed
+preferences. Authentication and synchronization still require account setup.
+
+Publish a source release containing `nier-onedrive-enable` before deploying
+these recipes. Existing updater installations preserve their configuration;
+set `recipe_revision` to 8 explicitly when deploying this change. This source
+change has not been published or deployed to either VM.
+
+### Monitor arrangement tracking (source change)
+
+The Git remote `gh-personal:0byt3/nier-monitor-arrangement.git` is an SSH alias for
+GitHub. Its HTTPS clone URL is
+`https://github.com/0byt3/nier-monitor-arrangement.git`; the updater uses the
+GitHub HTTPS API and tag archives, without cloning that SSH remote.
+
+The source default configuration includes `nier-monitor-arrangement` at recipe
+revision 11. First push the source and publish a stable GitHub release, such as
+`v0.1.0`; a tag alone is not a release, and ordinary branch commits do not trigger
+builds. Then deploy the updated executable/recipes, rebuild the builder image
+(which now includes Lua), add the package to the deployed configuration and
+update its recipe revision. Existing configuration is preserved on reinstall.
+A missing stable release fails discovery without changing the published pacman
+repository, so do not enable this package on VM 107 before that first release.
+This change has not yet been deployed or published.
+
+The monitor-arrangement recipe now uses its source-owned
+`packaging/install-files.sh` manifest. Revision 11 installs the runtime at
+`/usr/local/nier/share/hypr/monitor-arrangement-runtime.lua`; generated user hooks
+resolve it through `NIER_PATH`. Publish a release containing the shared manifest
+before deploying this recipe revision.
