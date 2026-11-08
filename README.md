@@ -511,3 +511,27 @@ particular, the source-tree OneDrive activation recipe requires helper files not
 present in the published OneDrive widget v1.6.0 source release. Deploy that
 recipe and its install script only after publishing a compatible OneDrive widget
 release; it was not enabled as part of this monitor-editor deployment.
+
+### Monitor arrangement v0.2.0 publication (2026-11-08)
+
+Published [v0.2.0](https://github.com/0byt3/nier-monitor-arrangement/releases/tag/v0.2.0)
+from `d226b58`, adding the primary-monitor selector/`NIER_PRIMARY_MONITOR` Lua
+global and fixing hidden-window reopening. VM107's existing updater fetched the
+HTTPS tag archive, built and signed `nier-monitor-arrangement 0.2.0-11`, and
+atomically published generation `release-2337269375`. No updater configuration,
+recipe, executable or builder-image change was needed; existing packages remain
+in the repository. The source archive SHA-256 is
+`dc2335b9c8d5fcf9aa6b481cb17db01da45df143cbe039613bcfa6891e153df5`.
+
+Installation from the HTTP repository passed in a disposable Arch client with
+`SigLevel = Required DatabaseRequired`, followed by 38-file integrity, runtime
+Lua syntax, desktop-entry, primary-selector and reopen-handler checks. The
+minimal image excludes documentation, so its shared empty `/usr/share/doc`
+directory was recreated before checking directory metadata; no package-specific
+file was changed. Repeat discovery reports the release current, and the hourly
+timer and HTTP service remain active/enabled. VM106 was not changed.
+
+Publication backup is retained at
+`/var/backups/nier-pacman-updater/monitor-v020-20261108T150446Z/`; validation logs
+and publication metadata are under
+`/var/lib/nier-pacman-updater/deploy/monitor-v0.2.0-d226b58/`.

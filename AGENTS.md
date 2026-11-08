@@ -73,3 +73,16 @@ known limitations and the parent AGENTS.md for VM details.
   OneDrive activation recipe/sidecar against upstream widget v1.6.0: that
   release lacks its new helper files. Publish a compatible widget release first.
 - No workstation or VM106 installation/configuration was changed by this deployment.
+
+## Monitor arrangement v0.2.0 publication (2026-11-08)
+
+- Stable v0.2.0 from `d226b58` adds primary-monitor selection and hidden-window
+  reopening. The existing VM107 updater published signed `0.2.0-11` in generation
+  `release-2337269375`; no updater code, recipes, configuration or image changed.
+- Strict signed HTTP client installation passed, with 38 package files unchanged,
+  runtime Lua syntax, desktop entry, primary selector and reopen-handler checks.
+  The minimal client image required recreating its excluded shared empty
+  `/usr/share/doc` directory before checking directory metadata.
+- Backup: `/var/backups/nier-pacman-updater/monitor-v020-20261108T150446Z/`.
+  Validation logs/state: `/var/lib/nier-pacman-updater/deploy/monitor-v0.2.0-d226b58/`.
+  Repeat discovery is current; timer and web service remain active/enabled.
