@@ -145,3 +145,24 @@ known limitations and the parent AGENTS.md for VM details.
   containers; the scratch keyring path is a host-side symlink to the existing keyring.
 - Backup/logs: `/var/backups/nier-pacman-updater/nufmt-v016/`.
   Repeat nufmt discovery is current; timer/web service active. VM106 unchanged.
+
+## VM106 repository client and UxPlay deployment (2026-11-11)
+
+- At the user's explicit request, configured VM106's pacman client with [nier]
+  at `http://10.0.2.36:8080`, requiring package/database signatures and the
+  pinned repository signing fingerprint. The updater service remains on VM107.
+- Direct pacman upgrade was rejected by Omarchy's guard before package changes;
+  canonical `omarchy update -y` completed instead, upgrading herdr, mise-bin,
+  owe and superwhisper-bin. Then `omarchy pkg add uxplay` installed signed
+  `uxplay 1.73.7-14` and its dependencies.
+- Integrity: 22 files, none altered; startup help and OpenSSL 3 linkage passed.
+  Wayland sink is available. Avahi was already active/enabled; UFW was inactive.
+- A transient localadmin user service `nier-uxplay-test.service` is running:
+  `uxplay -n "Omarchy VM106" -nh -vs waylandsink`.
+  Avahi resolves that AirPlay target on ens18 at 10.0.2.126. The desktop session
+  was retained; no reboot or permanent UxPlay autostart was configured.
+  Stop with `systemctl --user stop nier-uxplay-test.service`.
+- Pacman config backup and deployment/update/verification logs:
+  `/var/backups/nier-uxplay/20261111T143800Z/` on VM106.
+  No failed system/user units or pending package upgrades were reported.
+  Actual client mirroring remains for the user to test.
