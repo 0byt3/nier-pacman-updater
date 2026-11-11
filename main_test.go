@@ -503,3 +503,36 @@ func TestNufmtFetchAndOfflineBuildFailures(t *testing.T) {
 		})
 	}
 }
+
+func TestAirPlayStableReleaseAndHTTPS(t *testing.T) {
+	for _, test := range []struct {
+		tag                     string
+		draft, prerelease, fail bool
+	}{
+		{"v0.1.0", false, false, false}, {"0.2.1", false, false, false},
+		{"v0.2.0-rc1", false, true, true}, {"v0.2.0", true, false, true},
+		{"v0.3.0", false, true, true}, {"main", false, false, true},
+		{"v0.1.0/../../oops", false, false, true},
+	} {
+		t.Run(test.tag, func(t *testing.T) {
+			body, _ := json.Marshal(map[string]any{"tag_name": test.tag, "draft": test.draft, "prerelease": test.prerelease})
+			u, server := fixtureUpdater(t, string(body))
+			server.Config.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path != "/repos/0byt3/nier-airplay/releases/latest" {
+					t.Errorf("wrong remote: %s", r.URL.Path)
+				}
+				w.Write(body)
+			})
+			release, err := u.discover(context.Background(), "nier-airplay-plugin")
+			if (err != nil) != test.fail {
+				t.Fatalf("%+v: %v", release, err)
+			}
+			if !test.fail {
+				expected := "https://github.com/0byt3/nier-airplay/archive/refs/tags/" + test.tag + ".tar.gz"
+				if release.URL != expected || release.Version != strings.TrimPrefix(test.tag, "v") {
+					t.Fatal(release)
+				}
+			}
+		})
+	}
+}

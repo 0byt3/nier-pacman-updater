@@ -7,6 +7,9 @@ VM 107 is the deployment/test server.
 
 ## Packages and trusted sources
 
+- **`nier-airplay-plugin`**: numeric stable `0byt3/nier-airplay` releases,
+  compiled offline with UxPlay and Nier Desktop dependencies and automatic
+  widget activation for existing Omarchy users.
 - **`nufmt`**: latest numeric stable release of
   [nushell/nufmt](https://github.com/nushell/nufmt), compiled from its HTTPS tag
   archive with the committed Cargo.lock.
@@ -117,7 +120,7 @@ repository name, signing key, and pinned vendor key. Increment `recipe_revision`
 after recipe changes to rebuild an already published upstream release.
 
 The default configuration includes `onedrive-quickshell`, `teams-for-linux`,
-`nier-monitor-arrangement`, `neovim-nightly`, `powershell`, `uxplay`, `nufmt`, and recipe revision 14. Reinstallation preserves an existing package selection, so
+`nier-monitor-arrangement`, `neovim-nightly`, `powershell`, `uxplay`, `nufmt`, `nier-airplay-plugin`, and recipe revision 16. Reinstallation preserves an existing package selection, so
 add newly adopted packages to the deployed `packages` list and update
 `recipe_revision` explicitly before running them. Rebuild the builder image with
 `requirements.sh` after build dependency changes. GitHub source and asset URLs
@@ -653,3 +656,16 @@ Signing keys were not copied or mounted into containers. Backup:
 `/var/backups/nier-pacman-updater/nufmt-v016/`.
 Repeat nufmt discovery is current; the hourly timer and HTTP service are active.
 No workstation or VM106 package/configuration changes were made.
+
+## Nier AirPlay release tracking
+
+`nier-airplay-plugin` builds numeric stable releases of `0byt3/nier-airplay`
+from HTTPS tag archives. It depends on `uxplay>=1.73.7` and `nier-desktop`.
+The package name is `nier-airplay-plugin`; the Omarchy plugin ID is `nier.airplay`.
+Installation/upgrade invokes the packaged enable helper as each existing normal
+user with `~/.config/omarchy`, using an empty environment and dropping root
+privileges before touching user files. The helper backs up changed bar config,
+preserves custom plugin paths and avoids duplicate widgets. Logged-out users
+may receive a user-bus warning; their configuration is applied for next login.
+New users can run `nier-airplay-enable` themselves. The receiver remains
+manual-start and installation neither opens firewall ports nor starts playback.

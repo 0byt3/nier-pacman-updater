@@ -166,3 +166,36 @@ known limitations and the parent AGENTS.md for VM details.
   `/var/backups/nier-uxplay/20261111T143800Z/` on VM106.
   No failed system/user units or pending package upgrades were reported.
   Actual client mirroring remains for the user to test.
+
+## Nier AirPlay release tracking and publication (2026-11-11)
+
+- Track numeric stable `0byt3/nier-airplay` GitHub releases as
+  `nier-airplay-plugin` (Omarchy ID `nier.airplay`). Build the tag source offline
+  with Go, using separate privileged helper executables as upstream does.
+- Recipe depends directly on `uxplay>=1.73.7` and `nier-desktop` plus upstream
+  runtime dependencies. Revision 16 is newer than the initial GitHub asset's
+  pkgrel 15. Other deployed recipes and package selections were preserved.
+- VM107 published signed 0.1.0-16 in generation `release-422584700`.
+  Repeat discovery reports current. Backup:
+  `/var/backups/nier-pacman-updater/airplay-v010/`.
+- Pacman install/upgrade sidecar drops privileges with runuser/env -i and calls
+  the packaged enable helper for normal users with ~/.config/omarchy. Their
+  widget config is backed up/idempotent and custom plugin paths are preserved.
+  No receiver start, firewall opening or default login-start is requested.
+  New users run nier-airplay-enable themselves. A logged-out user's absent bus
+  can produce a warning after the widget files/config have already been applied.
+- Go race/vet, stable-release rejection/URL fixtures, Bash syntax and package
+  build passed. Strict signed HTTP installation in a disposable Omarchy-stable
+  client installed UxPlay 1.73.7-14 and Nier Desktop 3.0.0-20; AirPlay integrity
+  reports 45 files, none altered. Automatic widget activation and user ownership
+  were observed. Container bootloader/user-bus hook warnings reflect no booted
+  desktop in the container. VM106 was not modified.
+- Disposable client log: /tmp/nier-airplay-http-client.log on VM107. The reused
+  image needed its obsolete openssl-3 compatibility package removed before the
+  Omarchy-stable full upgrade to avoid conflicting libcrypto.so.3 ownership.
+- Hourly timer and HTTP service restored active after publication.
+- Repeat installation, single-widget placement, user-owned created files, static
+  receiver and preservation of a custom plugin directory passed in the disposable
+  installed client. Repeat log: /tmp/nier-airplay-repeat-client.log on VM107.
+  The initial ownership assertion included the root-created fixture parent
+  ~/.config; the corrected assertion checks the paths created by activation.

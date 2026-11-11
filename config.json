@@ -7,6 +7,6 @@
   "signing_key": "repo@nier.local",
   "vendor_key": "/etc/nier-pacman-updater/devolutions.asc",
   "vendor_fingerprint": "880E66407780AD737F46CBADFE7407ECB26FD2FE",
-  "packages": ["nufmt", "uxplay", "onedrive-abraunegg", "onedrive-quickshell", "nier-monitor-arrangement", "remote-desktop-manager", "teams-for-linux", "neovim-nightly", "powershell"],
-  "recipe_revision": 14
+  "packages": ["nier-airplay-plugin", "nufmt", "uxplay", "onedrive-abraunegg", "onedrive-quickshell", "nier-monitor-arrangement", "remote-desktop-manager", "teams-for-linux", "neovim-nightly", "powershell"],
+  "recipe_revision": 16
 }

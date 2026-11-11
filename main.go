@@ -144,9 +144,11 @@ func compare(a, b string) int {
 func (u *Updater) discover(ctx context.Context, name string) (Release, error) {
 	r := Release{Name: name, Pkgrel: fmt.Sprint(u.Config.RecipeRevision)}
 	switch name {
-	case "nufmt", "uxplay", "onedrive-abraunegg", "onedrive-quickshell", "nier-monitor-arrangement", "teams-for-linux", "powershell":
+	case "nier-airplay-plugin", "nufmt", "uxplay", "onedrive-abraunegg", "onedrive-quickshell", "nier-monitor-arrangement", "teams-for-linux", "powershell":
 		repository := "abraunegg/onedrive"
-		if name == "nufmt" {
+		if name == "nier-airplay-plugin" {
+			repository = "0byt3/nier-airplay"
+		} else if name == "nufmt" {
 			repository = "nushell/nufmt"
 		} else if name == "uxplay" {
 			repository = "FDH2/UxPlay"
@@ -636,7 +638,7 @@ func loadConfig(path string) (Config, error) {
 	}
 	seen := map[string]bool{}
 	for _, p := range c.Packages {
-		if (p != "nufmt" && p != "uxplay" && p != "onedrive-abraunegg" && p != "onedrive-quickshell" && p != "nier-monitor-arrangement" && p != "remote-desktop-manager" && p != "teams-for-linux" && p != "neovim-nightly" && p != "powershell") || seen[p] {
+		if (p != "nier-airplay-plugin" && p != "nufmt" && p != "uxplay" && p != "onedrive-abraunegg" && p != "onedrive-quickshell" && p != "nier-monitor-arrangement" && p != "remote-desktop-manager" && p != "teams-for-linux" && p != "neovim-nightly" && p != "powershell") || seen[p] {
 			return c, fmt.Errorf("unsupported or duplicate package %q", p)
 		}
 		seen[p] = true

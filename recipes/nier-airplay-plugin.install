@@ -1,0 +1,18 @@
+# Pacman runs this as root. Drop privileges before reading or changing user config.
+post_install() {
+  local name password uid gid gecos home shell
+  while IFS=: read -r name password uid gid gecos home shell; do
+    [[ $uid =~ ^[0-9]+$ ]] || continue
+    (( uid >= 1000 && uid < 65534 )) || continue
+    [[ -d $home/.config/omarchy ]] || continue
+    /usr/bin/timeout 30 /usr/bin/runuser -u "$name" -- /usr/bin/env -i \
+      HOME="$home" USER="$name" LOGNAME="$name" PATH=/usr/bin:/bin \
+      LANG=C.UTF-8 XDG_RUNTIME_DIR="/run/user/$uid" \
+      DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$uid/bus" \
+      /usr/bin/nier-airplay-enable || \
+      printf 'AirPlay: activation for %s could not finish (a logged-out user may only need a new session). Run nier-airplay-enable as that user to retry.\n' "$name" >&2
+  done < <(/usr/bin/getent passwd)
+}
+post_upgrade() {
+  post_install
+}
