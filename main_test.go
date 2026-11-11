@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -428,6 +429,76 @@ func TestUxPlayDiscovery(t *testing.T) {
 			if !test.fail && (release.Version != strings.TrimPrefix(test.tag, "v") ||
 				release.URL != "https://github.com/FDH2/UxPlay/archive/refs/tags/"+test.tag+".tar.gz") {
 				t.Fatal(release)
+			}
+		})
+	}
+}
+
+func TestNufmtDiscovery(t *testing.T) {
+	for _, test := range []struct {
+		tag                     string
+		draft, prerelease, fail bool
+	}{
+		{"v0.1.6", false, false, false},
+		{"0.1.6", false, false, false},
+		{"v0.2.0", false, true, true},
+		{"v0.2.0", true, false, true},
+		{"v0.2.0-rc1", false, false, true},
+		{"v0.1.6/../../oops", false, false, true},
+	} {
+		t.Run(test.tag, func(t *testing.T) {
+			body, _ := json.Marshal(map[string]any{"tag_name": test.tag, "draft": test.draft, "prerelease": test.prerelease})
+			u, server := fixtureUpdater(t, string(body))
+			server.Config.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path != "/repos/nushell/nufmt/releases/latest" {
+					t.Errorf("wrong remote: %s", r.URL.Path)
+				}
+				w.Write(body)
+			})
+			release, err := u.discover(context.Background(), "nufmt")
+			if (err != nil) != test.fail {
+				t.Fatalf("%+v: %v", release, err)
+			}
+			if !test.fail && (release.Version != strings.TrimPrefix(test.tag, "v") ||
+				release.URL != "https://github.com/nushell/nufmt/archive/refs/tags/"+test.tag+".tar.gz") {
+				t.Fatal(release)
+			}
+		})
+	}
+}
+
+func TestNufmtFetchAndOfflineBuildFailures(t *testing.T) {
+	for _, failAt := range []int{1, 2} {
+		t.Run(fmt.Sprint(failAt), func(t *testing.T) {
+			u, server := fixtureUpdater(t, "source archive")
+			u.Config.StateDir = t.TempDir()
+			u.Config.RecipeDir = "recipes"
+			u.Config.Image = "test-builder"
+			if err := os.Mkdir(filepath.Join(u.Config.StateDir, "work"), 0755); err != nil {
+				t.Fatal(err)
+			}
+			calls := 0
+			u.Command = func(_ context.Context, name string, args ...string) ([]byte, error) {
+				calls++
+				if name != "podman" || calls > failAt {
+					t.Fatalf("unexpected command after failure: %s %v", name, args)
+				}
+				joined := strings.Join(args, " ")
+				if calls == 1 {
+					if !strings.Contains(joined, "--network=pasta") || !strings.Contains(joined, "--nobuild") {
+						t.Fatalf("dependency fetch: %s", joined)
+					}
+				} else if !strings.Contains(joined, "--network=none") || !strings.Contains(joined, "--cleanbuild") {
+					t.Fatalf("compilation must be offline: %s", joined)
+				}
+				if calls == failAt {
+					return nil, errors.New("simulated failure")
+				}
+				return nil, nil
+			}
+			_, _, err := u.build(context.Background(), Release{Name: "nufmt", Version: "0.1.6", Pkgrel: "14", URL: server.URL})
+			if err == nil || calls != failAt {
+				t.Fatalf("calls=%d err=%v", calls, err)
 			}
 		})
 	}

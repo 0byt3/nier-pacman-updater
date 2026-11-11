@@ -5,6 +5,10 @@ installation and PKGBUILD recipes. Follow the parent project's Go preference.
 
 ## Scope and trusted sources
 
+- Build `nufmt` from numeric stable `nushell/nufmt` releases. Use the upstream
+  Cargo.lock, fetch dependencies separately without signing keys, and compile/test
+  offline with Cargo frozen.
+
 - Build `uxplay` from numeric stable `FDH2/UxPlay` GitHub releases using HTTPS tag archives.
 
 - Build `onedrive-abraunegg` from stable `abraunegg/onedrive` GitHub releases.
@@ -122,3 +126,22 @@ known limitations and the parent AGENTS.md for VM details.
 - The extracted binary loaded against the workstation's actual libraries and
   its help command passed. ABI-fix backup:
   `/var/backups/nier-pacman-updater/uxplay-abi-fix/`.
+
+## nufmt deployment (2026-11-11 UTC)
+
+- Stable `nushell/nufmt` v0.1.6 is now tracked. VM107 runs the updated updater,
+  Rust-enabled Omarchy-stable builder and recipe revision 14.
+- Published signed `nufmt 0.1.6-14` in `release-3776081877`; existing deployed
+  recipes and other published package versions were retained.
+- Cargo fetch uses a separate unprivileged pasta container with only package
+  work mounted. Compile/tests remain offline with the lockfile frozen.
+  Upstream tests expect a debug binary path: recipe links it to the release binary.
+- Candidate and final builds passed upstream tests (800 reported cases each).
+  Signed installation/integrity, stdin, idempotence/dry-run and actual workstation
+  library checks passed. HTTP client validation uses host networking to reach
+  the server's own LAN address; package/database signatures remain required.
+- NVMe scratch/candidate state: `/var/lib/nier-windows-images/nufmt-validation/`.
+  Normal deployed state paths were preserved. Signing material stays outside
+  containers; the scratch keyring path is a host-side symlink to the existing keyring.
+- Backup/logs: `/var/backups/nier-pacman-updater/nufmt-v016/`.
+  Repeat nufmt discovery is current; timer/web service active. VM106 unchanged.

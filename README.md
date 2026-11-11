@@ -7,6 +7,9 @@ VM 107 is the deployment/test server.
 
 ## Packages and trusted sources
 
+- **`nufmt`**: latest numeric stable release of
+  [nushell/nufmt](https://github.com/nushell/nufmt), compiled from its HTTPS tag
+  archive with the committed Cargo.lock.
 - **`uxplay`**: latest numeric stable release of
   [FDH2/UxPlay](https://github.com/FDH2/UxPlay), built from its HTTPS tag archive.
   Experimental master and prereleases are excluded.
@@ -114,7 +117,7 @@ repository name, signing key, and pinned vendor key. Increment `recipe_revision`
 after recipe changes to rebuild an already published upstream release.
 
 The default configuration includes `onedrive-quickshell`, `teams-for-linux`,
-`nier-monitor-arrangement`, `neovim-nightly`, `powershell`, `uxplay`, and recipe revision 13. Reinstallation preserves an existing package selection, so
+`nier-monitor-arrangement`, `neovim-nightly`, `powershell`, `uxplay`, `nufmt`, and recipe revision 14. Reinstallation preserves an existing package selection, so
 add newly adopted packages to the deployed `packages` list and update
 `recipe_revision` explicitly before running them. Rebuild the builder image with
 `requirements.sh` after build dependency changes. GitHub source and asset URLs
@@ -609,3 +612,44 @@ package; other package versions were retained. The replacement binary was
 extracted and checked against the actual workstation: all shared libraries
 resolved and its help command passed. Stable-client validation synchronizes and
 downgrades the base to Omarchy's stable mirror before installing the package.
+
+
+## nufmt source builds
+
+The default selection includes `nufmt` at recipe revision 14. Existing deployments
+must explicitly add it to their package list and install the updated executable,
+recipe and Rust-enabled builder image.
+
+Runtime dependencies are Arch's `glibc` and `gcc-libs`; build dependencies are
+`rust` (including Cargo) and base-devel. Nushell's parser libraries are compiled
+from crates; installing the separate `nushell` package is not required.
+
+Before the normal offline build, the updater runs only the maintained recipe's
+prepare phase in an unprivileged container with pasta networking. Cargo fetches
+dependencies using the upstream lockfile and verifies registry checksums.
+Only that package's work directory is mounted, with no signing-key mount.
+The Cargo cache lives outside srcdir so a clean build preserves downloaded
+crates. Compilation and upstream tests use `--frozen` in the normal container
+with networking disabled. Fetch/build/test failure prevents signing/publication.
+
+### nufmt publication (2026-11-11 UTC)
+
+VM107 now tracks stable `nushell/nufmt` releases at recipe revision 14.
+Published signed `nufmt 0.1.6-14` in generation `release-3776081877`.
+Existing deployed recipes and other published package versions were retained.
+
+The candidate and final source builds passed all upstream tests (800 reported
+passing cases each). Integration tests expect `target/debug/nufmt` even in
+release mode, so the recipe supplies a test-only symlink to the release binary.
+Signed installation, 10-file integrity, stdin formatting, idempotence, dry-run
+exit codes and workstation library loading passed. The final HTTP client uses
+host networking because pasta does not expose the server's own LAN address.
+Package/database signatures are required.
+
+Validation build storage is on the existing NVMe mount at
+`/var/lib/nier-windows-images/nufmt-validation/`; the deployment run used that
+scratch state with the live repo path. Normal deployed state paths were retained.
+Signing keys were not copied or mounted into containers. Backup:
+`/var/backups/nier-pacman-updater/nufmt-v016/`.
+Repeat nufmt discovery is current; the hourly timer and HTTP service are active.
+No workstation or VM106 package/configuration changes were made.

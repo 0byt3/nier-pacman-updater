@@ -144,9 +144,11 @@ func compare(a, b string) int {
 func (u *Updater) discover(ctx context.Context, name string) (Release, error) {
 	r := Release{Name: name, Pkgrel: fmt.Sprint(u.Config.RecipeRevision)}
 	switch name {
-	case "uxplay", "onedrive-abraunegg", "onedrive-quickshell", "nier-monitor-arrangement", "teams-for-linux", "powershell":
+	case "nufmt", "uxplay", "onedrive-abraunegg", "onedrive-quickshell", "nier-monitor-arrangement", "teams-for-linux", "powershell":
 		repository := "abraunegg/onedrive"
-		if name == "uxplay" {
+		if name == "nufmt" {
+			repository = "nushell/nufmt"
+		} else if name == "uxplay" {
 			repository = "FDH2/UxPlay"
 		} else if name == "onedrive-quickshell" {
 			repository = "0byt3/onedrive-quickshell"
@@ -397,6 +399,13 @@ func (u *Updater) build(ctx context.Context, r Release) (Release, string, error)
 	if closeErr != nil {
 		return r, "", closeErr
 	}
+	// Fetch locked Cargo sources in a separate unprivileged container. Only the
+	// package work directory is mounted; compilation/tests remain offline.
+	if r.Name == "nufmt" {
+		if err = u.run(ctx, "podman", "--cgroup-manager=cgroupfs", "run", "--rm", "--cgroups=disabled", "--userns=keep-id:uid=1000,gid=1000", "--network=pasta", "--volume", work+":/work:rw", "--workdir", "/work", u.Config.Image, "makepkg", "--nodeps", "--nobuild", "--noconfirm"); err != nil {
+			return r, "", fmt.Errorf("fetch Cargo dependencies: %w", err)
+		}
+	}
 	if err = u.run(ctx, "podman", "--cgroup-manager=cgroupfs", "run", "--rm", "--cgroups=disabled", "--userns=keep-id:uid=1000,gid=1000", "--network=none", "--volume", work+":/work:rw", "--workdir", "/work", u.Config.Image, "makepkg", "--nodeps", "--cleanbuild", "--clean", "--noconfirm"); err != nil {
 		return r, "", err
 	}
@@ -627,7 +636,7 @@ func loadConfig(path string) (Config, error) {
 	}
 	seen := map[string]bool{}
 	for _, p := range c.Packages {
-		if (p != "uxplay" && p != "onedrive-abraunegg" && p != "onedrive-quickshell" && p != "nier-monitor-arrangement" && p != "remote-desktop-manager" && p != "teams-for-linux" && p != "neovim-nightly" && p != "powershell") || seen[p] {
+		if (p != "nufmt" && p != "uxplay" && p != "onedrive-abraunegg" && p != "onedrive-quickshell" && p != "nier-monitor-arrangement" && p != "remote-desktop-manager" && p != "teams-for-linux" && p != "neovim-nightly" && p != "powershell") || seen[p] {
 			return c, fmt.Errorf("unsupported or duplicate package %q", p)
 		}
 		seen[p] = true
