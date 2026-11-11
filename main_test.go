@@ -399,3 +399,36 @@ func TestMonitorArrangementStandaloneConfig(t *testing.T) {
 		}
 	}
 }
+
+func TestUxPlayDiscovery(t *testing.T) {
+	for _, test := range []struct {
+		tag                     string
+		draft, prerelease, fail bool
+	}{
+		{"v1.73.7", false, false, false},
+		{"1.73.7", false, false, false},
+		{"v1.74", false, true, true},
+		{"v1.74", true, false, true},
+		{"v1.74-rc1", false, false, true},
+		{"v1.73.7/../../oops", false, false, true},
+	} {
+		t.Run(test.tag, func(t *testing.T) {
+			body, _ := json.Marshal(map[string]any{"tag_name": test.tag, "draft": test.draft, "prerelease": test.prerelease})
+			u, server := fixtureUpdater(t, string(body))
+			server.Config.Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path != "/repos/FDH2/UxPlay/releases/latest" {
+					t.Errorf("wrong remote: %s", r.URL.Path)
+				}
+				w.Write(body)
+			})
+			release, err := u.discover(context.Background(), "uxplay")
+			if (err != nil) != test.fail {
+				t.Fatalf("%+v: %v", release, err)
+			}
+			if !test.fail && (release.Version != strings.TrimPrefix(test.tag, "v") ||
+				release.URL != "https://github.com/FDH2/UxPlay/archive/refs/tags/"+test.tag+".tar.gz") {
+				t.Fatal(release)
+			}
+		})
+	}
+}

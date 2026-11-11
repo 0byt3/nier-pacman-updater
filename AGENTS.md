@@ -5,6 +5,8 @@ installation and PKGBUILD recipes. Follow the parent project's Go preference.
 
 ## Scope and trusted sources
 
+- Build `uxplay` from numeric stable `FDH2/UxPlay` GitHub releases using HTTPS tag archives.
+
 - Build `onedrive-abraunegg` from stable `abraunegg/onedrive` GitHub releases.
 - Repackage `remote-desktop-manager` from Devolutions' official Cloudsmith `rdm`
   RPM repository; verify the pinned vendor key, signature, and SHA-256 checksum.

@@ -7,6 +7,9 @@ VM 107 is the deployment/test server.
 
 ## Packages and trusted sources
 
+- **`uxplay`**: latest numeric stable release of
+  [FDH2/UxPlay](https://github.com/FDH2/UxPlay), built from its HTTPS tag archive.
+  Experimental master and prereleases are excluded.
 - **`onedrive-abraunegg`**: latest stable GitHub release of
   [abraunegg/onedrive](https://github.com/abraunegg/onedrive), compiled from its
   release source archive. Drafts, prereleases, and nonnumeric tags are rejected.
@@ -111,7 +114,7 @@ repository name, signing key, and pinned vendor key. Increment `recipe_revision`
 after recipe changes to rebuild an already published upstream release.
 
 The default configuration includes `onedrive-quickshell`, `teams-for-linux`,
-`nier-monitor-arrangement`, `neovim-nightly`, `powershell`, and recipe revision 11. Reinstallation preserves an existing package selection, so
+`nier-monitor-arrangement`, `neovim-nightly`, `powershell`, `uxplay`, and recipe revision 12. Reinstallation preserves an existing package selection, so
 add newly adopted packages to the deployed `packages` list and update
 `recipe_revision` explicitly before running them. Rebuild the builder image with
 `requirements.sh` after build dependency changes. GitHub source and asset URLs
@@ -535,3 +538,35 @@ Publication backup is retained at
 `/var/backups/nier-pacman-updater/monitor-v020-20261108T150446Z/`; validation logs
 and publication metadata are under
 `/var/lib/nier-pacman-updater/deploy/monitor-v0.2.0-d226b58/`.
+
+## UxPlay
+
+Source defaults now enable UxPlay at recipe revision 12. Existing installations
+preserve their package selections: add `uxplay` explicitly, install the updated
+recipe/executable, and rebuild the builder image before enabling it.
+
+Checked stable v1.73.7 against upstream CMake files and Arch repository metadata.
+Runtime dependencies: avahi, openssl, libplist, gstreamer, gst-plugins-base,
+gst-plugins-good, gst-plugins-bad, gst-libav, libx11, dbus (plus transitive
+dependencies). Build tools: base-devel, cmake and pkgconf. All are in Arch core
+or extra; no Omarchy-only or AUR dependency is needed for normal operation.
+The recipe retains upstream X11 and D-Bus support and installs its man pages,
+documentation, sample service and optional Bluetooth beacon. Enable avahi-daemon
+on the client for normal network discovery; packaging does not enable services.
+
+Optional Bluetooth beacon dependencies python, python-psutil, bluez,
+python-gobject, python-dbus and python-pyserial are also in core/extra. BleuIO
+needs its separate USB dongle. The alternate legacy HCI beacon needs deprecated
+`hcitool` and `hciconfig`; these are supplied by Arch extra
+package `bluez-deprecated-tools`. Thus even this optional mode needs no AUR
+package. Prefer the supported BlueZ/D-Bus beacon.
+Windows winrt bindings are irrelevant to this Linux package.
+
+Validation: Go race tests/vet, Bash syntax and whitespace checks passed.
+A disposable VM107 container built uxplay 1.73.7-12 with networking disabled;
+a separate disposable client resolved runtime dependencies from Arch, installed
+the package, verified 22 files with none missing, and ran `uxplay -h`.
+Logs/package remain under `/tmp/nier-uxplay-validation/` on VM107.
+The upstream binary embeds a source path (makepkg warns); this does not prevent
+packaging. AirPlay playback/Bluetooth pairing were not tested. The live updater,
+its configuration, signing state and repository were not changed.

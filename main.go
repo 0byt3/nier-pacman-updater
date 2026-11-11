@@ -144,9 +144,11 @@ func compare(a, b string) int {
 func (u *Updater) discover(ctx context.Context, name string) (Release, error) {
 	r := Release{Name: name, Pkgrel: fmt.Sprint(u.Config.RecipeRevision)}
 	switch name {
-	case "onedrive-abraunegg", "onedrive-quickshell", "nier-monitor-arrangement", "teams-for-linux", "powershell":
+	case "uxplay", "onedrive-abraunegg", "onedrive-quickshell", "nier-monitor-arrangement", "teams-for-linux", "powershell":
 		repository := "abraunegg/onedrive"
-		if name == "onedrive-quickshell" {
+		if name == "uxplay" {
+			repository = "FDH2/UxPlay"
+		} else if name == "onedrive-quickshell" {
 			repository = "0byt3/onedrive-quickshell"
 		} else if name == "nier-monitor-arrangement" {
 			repository = "0byt3/nier-monitor-arrangement"
@@ -625,7 +627,7 @@ func loadConfig(path string) (Config, error) {
 	}
 	seen := map[string]bool{}
 	for _, p := range c.Packages {
-		if (p != "onedrive-abraunegg" && p != "onedrive-quickshell" && p != "nier-monitor-arrangement" && p != "remote-desktop-manager" && p != "teams-for-linux" && p != "neovim-nightly" && p != "powershell") || seen[p] {
+		if (p != "uxplay" && p != "onedrive-abraunegg" && p != "onedrive-quickshell" && p != "nier-monitor-arrangement" && p != "remote-desktop-manager" && p != "teams-for-linux" && p != "neovim-nightly" && p != "powershell") || seen[p] {
 			return c, fmt.Errorf("unsupported or duplicate package %q", p)
 		}
 		seen[p] = true
