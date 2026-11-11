@@ -107,3 +107,18 @@ known limitations and the parent AGENTS.md for VM details.
   RAID-backed system-disk I/O caused long stalls during Teams packaging;
   the run recovered and completed successfully without reboot or storage changes.
 - No workstation/VM106 changes; AirPlay playback and Bluetooth were not tested.
+
+## UxPlay OpenSSL ABI fix (2026-11-11 UTC)
+
+- Initial UxPlay 1.73.7-12 erroneously linked OpenSSL 4 inherited from the
+  container base. The workstation uses OpenSSL 3. Reusing the newer container
+  base for client validation masked this.
+- Builder defaults to `https://stable-mirror.omarchy.org` (override
+  `ARCH_MIRROR` for other targets) and runs `pacman -Syyuu` to align base-image
+  packages with the target repository, including required downgrades.
+- UxPlay now records `libcrypto.so=3-64` via makepkg's SONAME dependency support.
+  Signed 1.73.7-13 is published in generation `release-647630407`; other package
+  versions were retained. The deployed recipe revision is 13.
+- The extracted binary loaded against the workstation's actual libraries and
+  its help command passed. ABI-fix backup:
+  `/var/backups/nier-pacman-updater/uxplay-abi-fix/`.

@@ -5,7 +5,7 @@ pkgdesc='AirPlay mirroring and audio server'
 arch=('x86_64')
 url='https://github.com/FDH2/UxPlay'
 license=('GPL-3.0-or-later')
-depends=('avahi' 'openssl' 'libplist' 'gstreamer' 'gst-plugins-base'
+depends=('avahi' 'openssl' 'libcrypto.so' 'libplist' 'gstreamer' 'gst-plugins-base'
          'gst-plugins-good' 'gst-plugins-bad' 'gst-libav' 'libx11' 'dbus')
 makedepends=('cmake' 'pkgconf')
 optdepends=('python: Bluetooth LE discovery beacon'

@@ -114,7 +114,7 @@ repository name, signing key, and pinned vendor key. Increment `recipe_revision`
 after recipe changes to rebuild an already published upstream release.
 
 The default configuration includes `onedrive-quickshell`, `teams-for-linux`,
-`nier-monitor-arrangement`, `neovim-nightly`, `powershell`, `uxplay`, and recipe revision 12. Reinstallation preserves an existing package selection, so
+`nier-monitor-arrangement`, `neovim-nightly`, `powershell`, `uxplay`, and recipe revision 13. Reinstallation preserves an existing package selection, so
 add newly adopted packages to the deployed `packages` list and update
 `recipe_revision` explicitly before running them. Rebuild the builder image with
 `requirements.sh` after build dependency changes. GitHub source and asset URLs
@@ -591,3 +591,21 @@ Deployment backup and retained validation logs:
 `/var/backups/nier-pacman-updater/uxplay-20261111T032458Z/`.
 The RAID-backed system disk stalled during packaging but recovered; publication
 completed without rebooting or changing storage configuration.
+
+### UxPlay OpenSSL ABI correction
+
+The initial 1.73.7-12 builder retained OpenSSL 4 from its container base even
+though the repository/client provided OpenSSL 3. The original client test reused
+that newer base and missed the incompatibility. Version 1.73.7-13 corrects this.
+
+The builder now defaults to Omarchy's stable Arch mirror and uses `pacman -Syyuu`
+so newer packages inherited from the base image are downgraded to the target
+repositories. Override `ARCH_MIRROR` at image build time for another target.
+UxPlay also declares `libcrypto.so`, which makepkg resolves to the actual ABI
+(`libcrypto.so=3-64` for this build), preventing installation with a missing ABI.
+
+Published signed generation `release-647630407` contains the corrected UxPlay
+package; other package versions were retained. The replacement binary was
+extracted and checked against the actual workstation: all shared libraries
+resolved and its help command passed. Stable-client validation synchronizes and
+downgrades the base to Omarchy's stable mirror before installing the package.
