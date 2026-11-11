@@ -570,3 +570,24 @@ Logs/package remain under `/tmp/nier-uxplay-validation/` on VM107.
 The upstream binary embeds a source path (makepkg warns); this does not prevent
 packaging. AirPlay playback/Bluetooth pairing were not tested. The live updater,
 its configuration, signing state and repository were not changed.
+
+### UxPlay publication (2026-11-10 Pacific / 2026-11-11 UTC)
+
+Deployed source commit `ecf09d8` to VM107, preserving existing deployed recipes
+and package selection while adding UxPlay and advancing recipe revision to 12.
+The updater rebuilt all eight tracked packages and atomically published signed
+generation `release-400859526` at `http://10.0.2.36:8080/`.
+UxPlay is available as `uxplay 1.73.7-12`.
+
+All published package signatures and the database signature verified. A disposable
+client installed UxPlay over HTTP with package/database signatures required;
+`pacman -Qkk` reported 22 files with none altered, `uxplay -h` passed, and
+GStreamer H.264/AAC decoder/parser and automatic audio/video sink checks passed.
+The client removed the container image's documentation/man-page exclusions before
+installation. Repeat discovery found all eight tracked packages current.
+The hourly timer and repository service remain active. VM106 was not changed.
+
+Deployment backup and retained validation logs:
+`/var/backups/nier-pacman-updater/uxplay-20261111T032458Z/`.
+The RAID-backed system disk stalled during packaging but recovered; publication
+completed without rebooting or changing storage configuration.

@@ -88,3 +88,22 @@ known limitations and the parent AGENTS.md for VM details.
 - Backup: `/var/backups/nier-pacman-updater/monitor-v020-20261108T150446Z/`.
   Validation logs/state: `/var/lib/nier-pacman-updater/deploy/monitor-v0.2.0-d226b58/`.
   Repeat discovery is current; timer and web service remain active/enabled.
+
+## UxPlay deployment (2026-11-10 Pacific / 2026-11-11 UTC)
+
+- Source commit `ecf09d8` adds stable `FDH2/UxPlay` release tracking.
+- VM107 runs the updated executable and expanded rootless builder at recipe
+  revision 12, with UxPlay added to its existing seven-package selection.
+  Existing deployed recipes were preserved; only the UxPlay recipe was added.
+- Published eight rebuilt packages in signed generation `release-400859526`:
+  UxPlay 1.73.7-12, OneDrive 2.5.12-12, widget 1.6.0-12, monitor arrangement
+  0.2.0-12, PowerShell 7.7.0-12, Teams 2.28.0-12,
+  RDM 2026.3.2.1-1.12, Neovim nightly 20261110190723.732606500-12.
+- Database/all package signatures verified. Strict signed HTTP client install,
+  22-file integrity check, UxPlay help and GStreamer element checks passed.
+  Repeat discovery is current; timer and HTTP service remain active.
+- Backup and validation logs:
+  `/var/backups/nier-pacman-updater/uxplay-20261111T032458Z/`.
+  RAID-backed system-disk I/O caused long stalls during Teams packaging;
+  the run recovered and completed successfully without reboot or storage changes.
+- No workstation/VM106 changes; AirPlay playback and Bluetooth were not tested.
